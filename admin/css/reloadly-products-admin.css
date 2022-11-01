@@ -1,0 +1,91 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+#reloadly_options {
+    padding: 15px;
+}
+#reloadly_options .info {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+#reloadly_options .wrapper-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+#reloadly_options .item > div {
+    position: relative;
+    padding-top: 20px;
+}
+#reloadly_options input {
+    float: none;
+    display: block;
+    width: 100%;
+}
+#reloadly_options .left {
+    width: calc(60% - 15px);
+}
+#reloadly_options .right {
+    width: calc(40% - 15px);
+}
+#reloadly_options .item > div span {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#reloadly_options .save {
+    margin-top: 15px;
+    text-align: right;
+}
+#reloadly_options select {
+    float: none;
+}
+#reloadly_options .item {
+    margin-bottom: 15px;
+}
+#help-div-1 {
+    display: none;
+}
+#reloadly_options .item {
+    position: relative;
+}
+#help-div-1.active {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 0;
+    border-radius: 5px;
+    border: 1px solid #8c8f94;
+    padding-top: 0 !important;
+}
+#help-div-1.active > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+#help-div-1.active > div:hover {
+    background-color: #fafafa;
+}
+#help-div-1.active > div span {
+    display: block;
+    position: relative;
+}
+#reloadly_options .item-value-reloadly label {
+    width: 100%;
+    float: none;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+} 
+#reloadly_options .item-value-reloadly label input,
+#reloadly_options .item-value-reloadly label select {
+    margin-top: 5px;
+}
