@@ -62,6 +62,7 @@
 				let countryIsoName = arr['content'][i]['country']['isoName'];
 				let countryName = arr['content'][i]['country']['name'];
 				let img_link = arr['content'][i]['logoUrls'][0];
+				let redeem_instruction_verbose = arr['content'][i]['redeemInstruction']['verbose'];
 				let denomination = [];
 				if (denominationType == 'RANGE') {
 					denomination.push(arr['content'][i]['minRecipientDenomination']);
@@ -81,6 +82,7 @@
 				content += 'data-denomination_type="' + denominationType + '" ';
 				content += 'data-country="' + countryIsoName + ', ' + countryName + '" ';
 				content += 'data-img="' + img_link + '" ';
+				content += 'data-instruction="' + redeem_instruction_verbose + '" ';
 				content += '" >' + productName + ' <span> ' + denominationType + ' (' + recipientCurrencyCode + ')</span></div>';
 
 			}
@@ -110,6 +112,7 @@
 		$('#discount-percentage-reloadly').val(product.attr('data-discount_percentage'));
 		$('#denomination-reloadly-system').val(product.attr('data-recipient_currency_code') );
 		$('#image_product_in_reloadly').val(product.attr('data-img') );
+		$('#redeem_instruction_verbose').val(product.attr('data-instruction') );
 
 
 		$('#help-div-1').removeClass('active');
@@ -153,11 +156,12 @@
 		let product_sender_fee_percentage_reloadly = $('#sender-fee-percentage-reloadly').val();
 		let product_discount_percentage_reloadly = $('#discount-percentage-reloadly').val();
 		let product_denomination_reloadly = $('#denomination_reloadly').val();
-		let product_denomination_currency_reloadly = $('#denomination-reloadly-system').val()
+		let product_denomination_currency_reloadly = $('#denomination-reloadly-system').val();
+		let product_redeem_instruction_verbose = $('#redeem_instruction_verbose').val();
 
 		let valid = true;
 
-		$('#reloadly_options .item input, #denomination_reloadly').each(function() {
+		$('#reloadly_options .item input:not(#redeem_instruction_verbose), #denomination_reloadly').each(function() {
 			if($(this).val() == '') {
 				valid = false;
 				$(this).addClass('error');
@@ -181,6 +185,7 @@
 			'product_discount_percentage_reloadly': product_discount_percentage_reloadly,
 			'product_denomination_reloadly': product_denomination_reloadly,
 			'product_denomination_currency_reloadly': product_denomination_currency_reloadly,
+			'product_redeem_instruction_verbose': product_redeem_instruction_verbose
 		};
 
 		$.post(ajaxurl, data, function(response) {

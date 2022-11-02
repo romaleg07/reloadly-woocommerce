@@ -284,6 +284,7 @@ class Reloadly_Products_Admin {
 					</div>
 					<input type="hidden" name="" id="id_product_in_woocommerce" value="<?php echo get_the_ID(); ?>">
 					<input type="hidden" name="" id="image_product_in_reloadly" >
+					<input type="hidden" name="" id="redeem_instruction_verbose" >
 				</div>
 			</div>
 			<div class="save">

@@ -264,6 +264,133 @@ class Reloadly_Products_Api {
         $str = mb_strtolower(trim($str));
         return str_replace(' ', '+', $str);
     }
+
+    public function generate_product_data($order_id, $order) {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'reloadly_products_table';
+
+        $results = $wpdb->get_results("SELECT * FROM  $table_name WHERE id = 0");
+        $results = $results[0];
+        $mode = $results->mode;
+        $audience = 'https://giftcards.reloadly.com/orders';
+        if ($mode == 'sandbox') {
+            $audience = 'https://giftcards-sandbox.reloadly.com/orders';
+        }
+
+        $email_user = $order->get_billing_email(); 
+
+        foreach( $order->get_items() as $item ) {
+            $product = $item->get_product(); // get the WC_Product Object
+
+            $quan = $item->get_quantity();
+
+            $price = $product->get_price();
+            $name_prod = strtolower(trim(strtr($product->get_name(), " ", "_")));
+
+            if ($product->get_type() == 'reloadly') {
+                $id_in_realodly = $product->get_meta( '_id_in_reloadly', true );
+                $amount = $product->get_meta( '_denomination_in_reloadly', true );
+
+                $curl = curl_init();
+
+                curl_setopt_array($curl, [
+                    CURLOPT_URL => $audience,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "POST",
+                    CURLOPT_POSTFIELDS => '{
+                        "productId": "' . $id_in_realodly . '",
+                        "quantity": ' . $quan . ',
+                        "recipientEmail": "' . $email_user . '",
+                        "senderName": "John Doe",
+                        "unitPrice": "' . $amount . '"
+                    }',
+                    CURLOPT_HTTPHEADER => [
+                        "Accept: application/com.reloadly.giftcards-v1+json",
+                        "Authorization: Bearer " . $this->token . "",
+                        "Content-Type: application/json"
+                    ],
+                ]);
+
+                $response = curl_exec($curl);
+                $err = curl_error($curl);
+
+                curl_close($curl);
+
+                if ($err) {
+                    update_post_meta($order_id, '_reloadly_error_' . $name_prod, "cURL Error #:" . $err);
+                } else {
+                    $response_decode = json_decode($response, true);
+
+                    update_post_meta($order_id, '_reloadly_all_response_' . $name_prod, $response);
+                    update_post_meta($order_id, '_reloadly_transaction_id_' . $name_prod, $response_decode['transactionId']);
+                    update_post_meta($order_id, '_reloadly_transaction_status_' . $name_prod, $response_decode['status']);
+                    update_post_meta($order_id, '_reloadly_amount_' . $name_prod, $response_decode['amount']);
+                    update_post_meta($order_id, '_reloadly_totalFee_' . $name_prod, $response_decode['totalFee']);
+
+
+                    $curl = curl_init();
+
+                    $mode = $results->mode;
+                    $audience = 'https://giftcards.reloadly.com/orders/transactions/' .$response_decode['transactionId'] . '/cards';
+                    if ($mode == 'sandbox') {
+                        $audience = 'https://giftcards-sandbox.reloadly.com/orders/transactions/' .$response_decode['transactionId'] . '/cards';
+                    }
+
+
+                    curl_setopt_array($curl, [
+                        CURLOPT_URL => $audience,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => [
+                            "Accept: application/com.reloadly.giftcards-v1+json",
+                            "Authorization: Bearer " . $this->token . ""
+                        ],
+                    ]);
+
+                    $response = curl_exec($curl);
+                    $err = curl_error($curl);
+
+                    curl_close($curl);
+
+                    if ($err) {
+                        update_post_meta($order_id, '_reloadly_error_get_code' . $name_prod, "cURL Error #:" . $err);
+                    } else {
+                        $response_decode = json_decode($response, true);
+                        update_post_meta($order_id, '_reloadly_all_response_get_codes_' . $name_prod, $response);
+                        if (count($response_decode) == 1) {
+                            $name_meta_code = '_reloadly_card_code_'. $name_prod;
+                            $name_meta_pin_code = '_reloadly_pin_code_'. $name_prod;
+                            update_post_meta($order_id, $name_meta_code, $response_decode[0]['cardNumber']);
+                            update_post_meta($order_id, $name_meta_pin_code, $response_decode[0]['pinCode']);
+                        } else {
+                            for($i = 0; $i < count($response_decode); $i++) {
+                                $j = $i + 1;
+                                $name_meta_code = '_reloadly_card_code_'. $name_prod . '_' . $j;
+                                $name_meta_pin_code = '_reloadly_pin_code_'. $name_prod . '_' . $j;
+                                update_post_meta($order_id, $name_meta_code, $response_decode[$i]['cardNumber']);
+                                update_post_meta($order_id, $name_meta_pin_code, $response_decode[$i]['pinCode']);
+                            }
+                            unset($i);
+                        }
+                        
+                    }
+                    
+                }
+
+
+                
+            }
+        }
+    }
 }
 
 ?>

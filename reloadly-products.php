@@ -129,8 +129,8 @@ function add_img_product_from_reloadly() {
     $img = $_POST['image_product_in_reloadly'];
     $product_id = $_POST['id_product_in_woocommerce'];
 
-    $smt = new Reloadly_Products_Admin($plugin_name, $version);
-    $smt->add_img_for_product_from_reloadly($img, $product_id);
+    $adminClass = new Reloadly_Products_Admin($plugin_name, $version);
+    $adminClass->add_img_for_product_from_reloadly($img, $product_id);
 
 	wp_die(); // this is required to terminate immediately and return a proper response
 }
@@ -147,6 +147,7 @@ function save_reloadly_data() {
     $product_discount_percentage_reloadly = $_POST['product_discount_percentage_reloadly'];
     $product_denomination_reloadly = $_POST['product_denomination_reloadly'];
     $product_denomination_currency_reloadly = $_POST['product_denomination_currency_reloadly'];
+    $product_redeem_instruction_verbose = $_POST['product_redeem_instruction_verbose'];
 
     update_post_meta($id_prod_wc, '_name_in_reloadly', $product_name_reloadly);
     update_post_meta($id_prod_wc, '_id_in_reloadly', $product_id_reloadly);
@@ -156,8 +157,20 @@ function save_reloadly_data() {
     update_post_meta($id_prod_wc, '_denomination_in_reloadly', $product_denomination_reloadly);
     update_post_meta($id_prod_wc, '_discount_percentage_in_reloadly', $product_discount_percentage_reloadly);
     update_post_meta($id_prod_wc, '_denomination_currency_reloadly', $product_denomination_currency_reloadly);
+    update_post_meta($id_prod_wc, '_redeem_instruction_verbose_reloadly', $product_redeem_instruction_verbose);
 
 	wp_die(); // this is required to terminate immediately and return a proper response
+}
+
+add_action('woocommerce_order_status_completed', 'generate_card_reloadly', 10, 3);
+
+function generate_card_reloadly( $order_id, $order ) {
+    $token_class = new Reloadly_Products_Api_Auth();
+    $token = $token_class->get_access_token();
+
+    $api_class = new Reloadly_Products_Api($token);
+    $product = $api_class->generate_product_data($order_id, $order);
+    update_post_meta($order_id, '_reloadly_test', 'testing');
 }
 
 
