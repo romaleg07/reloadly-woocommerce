@@ -333,8 +333,44 @@ class Reloadly_Products_Admin {
 		}
 	}
 
-	public function add_img_for_product_from_reloadly() {
-		echo 'esss';
+	public function add_img_for_product_from_reloadly($img, $product_id) {
+		$file = $img;
+		$filename = basename($file);
+		$fileNameArray = explode('.', $filename);
+		$arguments = array(
+			'name' => $fileNameArray[0],
+			'post_type'        => 'attachment',
+		);
+		$attachments = get_posts($arguments);
+		$post_image = get_the_post_thumbnail( $product_id, 'thumbnail');
+		if (empty($post_image)){
+			if(!$attachments) {
+				$upload_file = wp_upload_bits($filename, null, file_get_contents($file));
+				if (!$upload_file['error']) {
+					$wp_filetype = wp_check_filetype($filename, null );
+					$attachment = array(
+						'post_mime_type' => $wp_filetype['type'],
+						'post_parent' => $product_id,
+						'post_title' => preg_replace('/\.[^.]+$/', '', $filename),
+						'post_content' => '',
+						'post_status' => 'inherit'
+					);
+					$attachment_id = wp_insert_attachment( $attachment, $upload_file['file'], $product_id );
+					if (!is_wp_error($attachment_id)) {
+						require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+						$attachment_data = wp_generate_attachment_metadata( $attachment_id, $upload_file['file'] );
+						wp_update_attachment_metadata( $attachment_id,  $attachment_data );
+
+						set_post_thumbnail( $product_id, $attachment_id );
+					}
+				}
+			} else {
+				set_post_thumbnail( $product_id, $attachments[0]->ID );
+			}
+		} else {
+			echo 'Изображение уже установлено';
+		}
+	
 	}
 
 }

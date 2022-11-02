@@ -123,9 +123,14 @@ function add_img_product_from_reloadly() {
     } else {
         $version = '1.0.0';
     }
+
     $plugin_name = 'reloadly-products';
+
+    $img = $_POST['image_product_in_reloadly'];
+    $product_id = $_POST['id_product_in_woocommerce'];
+
     $smt = new Reloadly_Products_Admin($plugin_name, $version);
-    $smt->add_img_for_product_from_reloadly();
+    $smt->add_img_for_product_from_reloadly($img, $product_id);
 
 	wp_die(); // this is required to terminate immediately and return a proper response
 }

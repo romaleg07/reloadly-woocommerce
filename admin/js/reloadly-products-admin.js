@@ -193,9 +193,11 @@
 
 	function add_img_product() {
 		let image_product_in_reloadly = $('#image_product_in_reloadly').val();
+		let id_product_in_woocommerce = $('#id_product_in_woocommerce').val();
 		let data = {
 			'action': 'add_img_product_from_reloadly',
 			'image_product_in_reloadly': image_product_in_reloadly,
+			'id_product_in_woocommerce': id_product_in_woocommerce
 		};
 
 		$.post(ajaxurl, data, function(response) {
