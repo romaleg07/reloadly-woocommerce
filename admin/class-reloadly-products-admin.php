@@ -285,6 +285,11 @@ class Reloadly_Products_Admin {
 					<input type="hidden" name="" id="id_product_in_woocommerce" value="<?php echo get_the_ID(); ?>">
 					<input type="hidden" name="" id="image_product_in_reloadly" >
 					<input type="hidden" name="" id="redeem_instruction_verbose" >
+					<input type="hidden" name="" id="url_image_country_reloadly" >
+					<?php global $post;
+					$terms = get_the_terms( get_the_ID(), 'product_cat' ); 
+					?>
+					<input type="hidden" name="" id="parent_categories_id" value="<?php foreach ($terms as $term) { echo $term->term_id; }?>">
 				</div>
 			</div>
 			<div class="save">

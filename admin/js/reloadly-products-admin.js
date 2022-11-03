@@ -63,6 +63,7 @@
 				let countryName = arr['content'][i]['country']['name'];
 				let img_link = arr['content'][i]['logoUrls'][0];
 				let redeem_instruction_verbose = arr['content'][i]['redeemInstruction']['verbose'];
+				let url_country_flag = arr['content'][i]['country']['flagUrl'];
 				let denomination = [];
 				if (denominationType == 'RANGE') {
 					denomination.push(arr['content'][i]['minRecipientDenomination']);
@@ -83,6 +84,7 @@
 				content += 'data-country="' + countryIsoName + ', ' + countryName + '" ';
 				content += 'data-img="' + img_link + '" ';
 				content += 'data-instruction="' + redeem_instruction_verbose + '" ';
+				content += 'data-url-flag="' + url_country_flag + '" ';
 				content += '" >' + productName + ' <span> ' + denominationType + ' (' + recipientCurrencyCode + ')</span></div>';
 
 			}
@@ -113,6 +115,7 @@
 		$('#denomination-reloadly-system').val(product.attr('data-recipient_currency_code') );
 		$('#image_product_in_reloadly').val(product.attr('data-img') );
 		$('#redeem_instruction_verbose').val(product.attr('data-instruction') );
+		$('#url_image_country_reloadly').val(product.attr('data-url-flag') );
 
 
 		$('#help-div-1').removeClass('active');
@@ -148,6 +151,7 @@
 
 	function save_reloadly_data() {
 		let product_id_woocommerce = $('#id_product_in_woocommerce').val();
+		let categories_ids_woocommerce = $('#parent_categories_id').val();
 
 		let product_name_reloadly = $('#name-reloadly-system').val();
 		let product_id_reloadly = $('#id-reloadly').val();
@@ -158,10 +162,11 @@
 		let product_denomination_reloadly = $('#denomination_reloadly').val();
 		let product_denomination_currency_reloadly = $('#denomination-reloadly-system').val();
 		let product_redeem_instruction_verbose = $('#redeem_instruction_verbose').val();
+		let product_url_country_flag = $('#url_image_country_reloadly').val();
 
 		let valid = true;
 
-		$('#reloadly_options .item input:not(#redeem_instruction_verbose), #denomination_reloadly').each(function() {
+		$('#reloadly_options #id-reloadly, #denomination_reloadly').each(function() {
 			if($(this).val() == '') {
 				valid = false;
 				$(this).addClass('error');
@@ -177,6 +182,7 @@
 		let data = {
 			'action': 'save_reloadly_data',
 			'product_id_woocommerce': product_id_woocommerce,
+			'categories_ids_woocommerce': categories_ids_woocommerce,
 			'product_name_reloadly': product_name_reloadly,
 			'product_id_reloadly': product_id_reloadly,
 			'product_country_reloadly': product_country_reloadly,
@@ -185,7 +191,8 @@
 			'product_discount_percentage_reloadly': product_discount_percentage_reloadly,
 			'product_denomination_reloadly': product_denomination_reloadly,
 			'product_denomination_currency_reloadly': product_denomination_currency_reloadly,
-			'product_redeem_instruction_verbose': product_redeem_instruction_verbose
+			'product_redeem_instruction_verbose': product_redeem_instruction_verbose,
+			'product_url_country_flag': product_url_country_flag
 		};
 
 		$.post(ajaxurl, data, function(response) {

@@ -139,6 +139,9 @@ add_action( 'wp_ajax_save_reloadly_data', 'save_reloadly_data' );
 
 function save_reloadly_data() {
     $id_prod_wc = (int)$_POST['product_id_woocommerce'];
+    $categories_ids_woocommerce = (int)$_POST['categories_ids_woocommerce'];
+
+
     $product_name_reloadly = $_POST['product_name_reloadly'];
     $product_id_reloadly = $_POST['product_id_reloadly'];
     $product_country_reloadly = $_POST['product_country_reloadly'];
@@ -148,6 +151,11 @@ function save_reloadly_data() {
     $product_denomination_reloadly = $_POST['product_denomination_reloadly'];
     $product_denomination_currency_reloadly = $_POST['product_denomination_currency_reloadly'];
     $product_redeem_instruction_verbose = $_POST['product_redeem_instruction_verbose'];
+    $product_url_country_flag = $_POST['product_url_country_flag'];
+
+    $product_country_reloadly_ISO = explode(",", $product_country_reloadly);
+    $product_country_reloadly_ISO = $product_country_reloadly_ISO[0];
+
 
     update_post_meta($id_prod_wc, '_name_in_reloadly', $product_name_reloadly);
     update_post_meta($id_prod_wc, '_id_in_reloadly', $product_id_reloadly);
@@ -158,6 +166,28 @@ function save_reloadly_data() {
     update_post_meta($id_prod_wc, '_discount_percentage_in_reloadly', $product_discount_percentage_reloadly);
     update_post_meta($id_prod_wc, '_denomination_currency_reloadly', $product_denomination_currency_reloadly);
     update_post_meta($id_prod_wc, '_redeem_instruction_verbose_reloadly', $product_redeem_instruction_verbose);
+    update_post_meta($id_prod_wc, '_country_iso_reloadly', $product_country_reloadly_ISO);
+    update_post_meta($id_prod_wc, '_url_country_flag_reloadly', $product_url_country_flag);
+
+    $country_terms_iso = get_term_meta($categories_ids_woocommerce, '_country_iso_reloadly', true);
+    $country_terms_name = get_term_meta($categories_ids_woocommerce, '_country_in_reloadly', true);
+
+
+
+    if (empty($country_terms_iso)) {
+        update_term_meta($categories_ids_woocommerce, '_country_iso_reloadly', $product_country_reloadly_ISO);
+        update_term_meta($categories_ids_woocommerce, '_country_in_reloadly', $product_country_reloadly);
+    } else {
+        $mystring = $country_terms_iso;
+        $findme   = $product_country_reloadly_ISO;
+        $pos = strpos($mystring, $findme);
+
+        if ($pos === false) {
+            update_term_meta($categories_ids_woocommerce, '_country_iso_reloadly', $country_terms_iso . ',' . $product_country_reloadly_ISO);
+            update_term_meta($categories_ids_woocommerce, '_country_in_reloadly', $country_terms_name . ';' . $product_country_reloadly);
+        }
+
+    }
 
 	wp_die(); // this is required to terminate immediately and return a proper response
 }
