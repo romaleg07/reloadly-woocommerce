@@ -273,13 +273,14 @@ class Reloadly_Products_Api {
         $results = $wpdb->get_results("SELECT * FROM  $table_name WHERE id = 0");
         $results = $results[0];
         $mode = $results->mode;
-        $audience = 'https://giftcards.reloadly.com/orders';
+        $audience_create = 'https://giftcards.reloadly.com/orders';
         if ($mode == 'sandbox') {
-            $audience = 'https://giftcards-sandbox.reloadly.com/orders';
+            $audience_create = 'https://giftcards-sandbox.reloadly.com/orders';
         }
 
         $email_user = $order->get_billing_email(); 
 
+        $c = 0;
         foreach( $order->get_items() as $item ) {
             $product = $item->get_product(); // get the WC_Product Object
 
@@ -293,10 +294,13 @@ class Reloadly_Products_Api {
                 $amount = $product->get_meta( '_denomination_in_reloadly', true );
 
                 $curl = curl_init();
-
+                update_post_meta($order_id, '_testins_' . $name_prod . '_' . $c, "Тестовая итерация: id:" . $id_in_realodly);
+                update_post_meta($order_id, '_testinsurl_' . $name_prod . '_' . $c, $audience_create);
+                update_post_meta($order_id, '_testinsquan_' . $name_prod . '_' . $c, $quan);
+                update_post_meta($order_id, '_testinsmail_' . $name_prod . '_' . $c, $email_user);
                 curl_setopt_array($curl, [
-                    CURLOPT_URL => $audience,
-                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_URL => $audience_create,
+                    CURLOPT_RETURNTRANSFER => true, 
                     CURLOPT_ENCODING => "",
                     CURLOPT_MAXREDIRS => 10,
                     CURLOPT_TIMEOUT => 30,
@@ -389,6 +393,7 @@ class Reloadly_Products_Api {
 
                 
             }
+            $c++;
         }
     }
 }
