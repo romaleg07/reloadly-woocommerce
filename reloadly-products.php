@@ -197,6 +197,7 @@ add_action('woocommerce_order_status_completed', 'generate_card_reloadly', 10, 3
 function generate_card_reloadly( $order_id, $order ) {
     $token_class = new Reloadly_Products_Api_Auth();
     $token = $token_class->get_access_token();
+    
 
     $api_class = new Reloadly_Products_Api($token);
     $product = $api_class->generate_product_data($order_id, $order);
