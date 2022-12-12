@@ -89,3 +89,7 @@
 #reloadly_options .item-value-reloadly label select {
     margin-top: 5px;
 }
+#reloadly_options .select2 {
+    min-width: 300px;
+    float: none;
+}

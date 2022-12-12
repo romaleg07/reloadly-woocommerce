@@ -19,6 +19,10 @@
 			save_reloadly_data();
 
 		})
+
+		$(document).ready(function() {
+			$('#country-reloadly').select2();
+		});
 	});
 
 	function get_countries(wrapper){
